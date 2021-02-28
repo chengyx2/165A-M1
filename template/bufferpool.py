@@ -84,17 +84,27 @@ class BufferPool:
                 pageRange.writeToFile()
         return True
 
-    # Evict the least recently used page range(Could use MRU as well)//////////LRU unimplemented!
+    # Evict the least recently used page range(Could use MRU as well)
     def evict(self):
-        # wait for an available page range
+        if self.pageRange == None:
+                print("Nothing to be evict")
+                return False
+        i = 0
         while True:
-            for pageRange in self.pageRanges:
-                if pageRange.isAvailable:
-                    if pageRange.isDirty:
-                        pageRange.writeToFile()
-                    pageRange.clear()
-                    return pageRange
-
+            item = self.pageRange[i]
+            if item.isAvailable:
+                if item.isDirty:
+                    item.writeToFile()
+                    self.pageRange.pop(i)
+                    break
+                else:
+                    self.pageRange.pop(i)
+                pageRange.clear()
+                return True
+            else:
+                i += 1 
+                item = self.pageRange[i]
+        return True
     # Load the wanted page range onto buffer pool
     def load(self, pageRange_index):
         emptyPageRange = self.getEmptyPage()
@@ -102,6 +112,5 @@ class BufferPool:
         emptyPageRange.readFromFile()
         loadedPageRange = emptyPageRange
         return loadedPageRange
-
 
     # +++ member functions in table class, similar here?
